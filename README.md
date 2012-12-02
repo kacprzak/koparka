@@ -1,0 +1,4 @@
+koparka
+=======
+
+Symulator koparki

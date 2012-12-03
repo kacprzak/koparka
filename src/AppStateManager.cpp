@@ -1,7 +1,7 @@
 /* -*- c-basic-offset: 4; indent-tabs-mode: nil; -*- */
 #include "AppStateManager.h"
 
-#include <OgreWindowEventUtilities.h>
+#include <OGRE/OgreWindowEventUtilities.h>
 
 //------------------------------------------------------------------------------
 

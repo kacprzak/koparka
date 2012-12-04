@@ -2,26 +2,7 @@ cmake_minimum_required( VERSION 2.8 )
  
 project( koparka )
 
-if(WIN32)
-	set(CMAKE_MODULE_PATH "$ENV{OGRE_HOME}/CMake/;${CMAKE_MODULE_PATH}")
-	set(OGRE_SAMPLES_INCLUDEPATH
-		$ENV{OGRE_HOME}/Samples/include
-	)
-endif(WIN32)
- 
-if(UNIX)
-	if(EXISTS "/usr/lib64/OGRE/cmake")
-                  set(CMAKE_MODULE_PATH "/usr/lib64/OGRE/cmake/;${CMAKE_MODULE_PATH}")
-                  # We could just *assume* that developers uses this basepath : /usr/local
-	          set(OGRE_SAMPLES_INCLUDEPATH "/usr/share/OGRE/samples/Common/include/")
-	elseif(EXISTS "/usr/lib/OGRE/cmake")
-	          set(CMAKE_MODULE_PATH "/usr/lib/OGRE/cmake/;${CMAKE_MODULE_PATH}")
-                  # Otherwise, this one
-                  set(OGRE_SAMPLES_INCLUDEPATH "/usr/share/OGRE/samples/Common/include/")
-	else ()
-	          message(SEND_ERROR "Failed to find module path.")
-	endif(EXISTS "/usr/lib64/OGRE/cmake")
-endif(UNIX)
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
 if( MSVC )
   #add_definitions( "" )

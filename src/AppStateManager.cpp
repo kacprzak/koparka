@@ -44,7 +44,7 @@ void AppStateManager::manageAppState(Ogre::String stateName, AppState *state)
         throw Ogre::Exception(Ogre::Exception::ERR_INTERNAL_ERROR,
                               "Error while tring to manage a new AppState\n"
                               + Ogre::String(e.what()),
-                              __FILE__ ": __LINE__");
+                              __FILE__ ":__LINE__");
     }
 }
 
@@ -78,23 +78,23 @@ void AppStateManager::start(AppState *state)
     int startTime = 0;
 
     while (!m_shutdown) {
-        if (of->m_window->isClosed())
+        if (of->renderWindow()->isClosed())
             m_shutdown = true;
 
         Ogre::WindowEventUtilities::messagePump();
 
-        if (of->m_window->isActive()) {
-            startTime = of->m_timer->getMillisecondsCPU();
+        if (of->renderWindow()->isActive()) {
+            startTime = of->timer()->getMillisecondsCPU();
 
-            of->m_keyboard->capture();
-            of->m_mouse->capture();
+            of->keyboard()->capture();
+            of->mouse()->capture();
 
             m_activeStateStack.back()->update(timeSinceLastFrame);
             
             of->updateOgre(timeSinceLastFrame);
-            of->m_root->renderOneFrame();
+            of->root()->renderOneFrame();
 
-            timeSinceLastFrame = of->m_timer->getMillisecondsCPU() - startTime;
+            timeSinceLastFrame = of->timer()->getMillisecondsCPU() - startTime;
         } else {
             //#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
             //Sleep(1000);
@@ -104,7 +104,7 @@ void AppStateManager::start(AppState *state)
         }
     }
 
-    of->m_log->logMessage("Main loop quit");
+    of->log()->logMessage("Main loop quit");
 }
 
 //------------------------------------------------------------------------------
@@ -213,9 +213,9 @@ void AppStateManager::init(AppState *state)
 {
     OgreFramework *of = OgreFramework::getSingletonPtr();
 
-    of->m_keyboard->setEventCallback(state);
-    of->m_mouse->setEventCallback(state);
-    of->m_trayManager->setListener(state);
+    of->keyboard()->setEventCallback(state);
+    of->mouse()->setEventCallback(state);
+    of->trayManager()->setListener(state);
 
-    of->m_window->resetStatistics();
+    of->renderWindow()->resetStatistics();
 }

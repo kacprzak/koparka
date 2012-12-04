@@ -27,7 +27,7 @@ void DemoApp::startDemo()
     if (!OgreFramework::getSingletonPtr()->initOgre("OgreFramework", 0, 0))
         return;
 
-    OgreFramework::getSingletonPtr()->m_log->logMessage("Demo initialized");
+    OgreFramework::getSingletonPtr()->log()->logMessage("Demo initialized");
 
     m_appStateManager = new AppStateManager();
 

@@ -18,7 +18,7 @@
 #include <OIS/OISInputManager.h>
 #include <OIS/OISKeyboard.h>
 #include <OIS/OISMouse.h>
- 
+
 #include <OGRE/SdkTrays.h>
  
 class OgreFramework : public Ogre::Singleton<OgreFramework>,
@@ -41,12 +41,23 @@ class OgreFramework : public Ogre::Singleton<OgreFramework>,
     bool mousePressed(const OIS::MouseEvent& event, OIS::MouseButtonID id);
     bool mouseReleased(const OIS::MouseEvent& event, OIS::MouseButtonID id);
 
+    // Getters
+    Ogre::Root* root() { return m_root; }
+    Ogre::RenderWindow* renderWindow() { return m_window; }
+    Ogre::Viewport* viewport() { return m_viewport; }
+    Ogre::Log* log() { return m_log; }
+    Ogre::Timer* timer() { return m_timer; }
+
+    OIS::InputManager* inuptManager() { return m_inputManager; }
+    OIS::Mouse* mouse() { return m_mouse; }
+    OIS::Keyboard* keyboard() { return m_keyboard; }
+
+    OgreBites::SdkTrayManager* trayManager() { return m_trayManager; }
 
  private:
     OgreFramework(const OgreFramework& of); // Don't implement
     void operator=(const OgreFramework& of); // Don't implement
  
- public:
     // Główny obiekt silnika OGRE
     Ogre::Root *m_root;
     // Obiekt okna na którym rysowana jest scena

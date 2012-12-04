@@ -17,9 +17,9 @@ void MenuState::enter()
 {
     OgreFramework *of = OgreFramework::getSingletonPtr();
 
-    of->m_log->logMessage("Entering MenuState...");
+    of->log()->logMessage("Entering MenuState...");
 
-    m_sceneManager = of->m_root->createSceneManager(ST_GENERIC, "MenuSceneMgr");
+    m_sceneManager = of->root()->createSceneManager(ST_GENERIC, "MenuSceneMgr");
     m_sceneManager->setAmbientLight(Ogre::ColourValue(0.7f, 0.7f, 0.7f));
 
     m_camera = m_sceneManager->createCamera("MenuCam");
@@ -27,20 +27,20 @@ void MenuState::enter()
     m_camera->lookAt(Vector3(0, 0, 0));
     m_camera->setNearClipDistance(1);
 
-    m_camera->setAspectRatio(of->m_viewport->getActualWidth() /
-                             Real(of->m_viewport->getActualHeight()));
+    m_camera->setAspectRatio(of->viewport()->getActualWidth() /
+                             Real(of->viewport()->getActualHeight()));
 
-    of->m_viewport->setCamera(m_camera);
+    of->viewport()->setCamera(m_camera);
 
-    of->m_trayManager->destroyAllWidgets();
-    of->m_trayManager->showFrameStats(OgreBites::TL_BOTTOMLEFT);
-    of->m_trayManager->showLogo(OgreBites::TL_BOTTOMRIGHT);
-    of->m_trayManager->showCursor();
-    of->m_trayManager->createButton(OgreBites::TL_CENTER, "EnterBtn",
+    of->trayManager()->destroyAllWidgets();
+    of->trayManager()->showFrameStats(OgreBites::TL_BOTTOMLEFT);
+    of->trayManager()->showLogo(OgreBites::TL_BOTTOMRIGHT);
+    of->trayManager()->showCursor();
+    of->trayManager()->createButton(OgreBites::TL_CENTER, "EnterBtn",
                                     "Enter GameState", 250);
-    of->m_trayManager->createButton(OgreBites::TL_CENTER, "ExitBtn",
+    of->trayManager()->createButton(OgreBites::TL_CENTER, "ExitBtn",
                                     "Exit OgreFramework", 250);
-    of->m_trayManager->createLabel(OgreBites::TL_TOP, "MenuLbl",
+    of->trayManager()->createLabel(OgreBites::TL_TOP, "MenuLbl",
                                    "Menu mode", 250);
 
     createScene();
@@ -59,15 +59,15 @@ void MenuState::exit()
 {
     OgreFramework *of = OgreFramework::getSingletonPtr();
 
-    of->m_log->logMessage("Leaving MenuState...");
+    of->log()->logMessage("Leaving MenuState...");
 
     m_sceneManager->destroyCamera(m_camera);
     if(m_sceneManager)
-        of->m_root->destroySceneManager(m_sceneManager);
+        of->root()->destroySceneManager(m_sceneManager);
 
-    of->m_trayManager->clearAllTrays();
-    of->m_trayManager->destroyAllWidgets();
-    of->m_trayManager->setListener(0);
+    of->trayManager()->clearAllTrays();
+    of->trayManager()->destroyAllWidgets();
+    of->trayManager()->setListener(0);
 }
 
 //------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ void MenuState::exit()
 void MenuState::update(double timeSinceLastFrame)
 {
     m_frameEvent.timeSinceLastFrame = timeSinceLastFrame;
-    OgreFramework::getSingletonPtr()->m_trayManager->frameRenderingQueued(m_frameEvent);
+    OgreFramework::getSingletonPtr()->trayManager()->frameRenderingQueued(m_frameEvent);
 
     if (m_quit == true) {
         shutdown();
@@ -87,7 +87,7 @@ void MenuState::update(double timeSinceLastFrame)
 
 bool MenuState::keyPressed(const OIS::KeyEvent& event)
 {
-    if (OgreFramework::getSingletonPtr()->m_keyboard->isKeyDown(OIS::KC_ESCAPE)) {
+    if (OgreFramework::getSingletonPtr()->keyboard()->isKeyDown(OIS::KC_ESCAPE)) {
         m_quit = true;
         return true;
     }
@@ -108,7 +108,7 @@ bool MenuState::keyReleased(const OIS::KeyEvent& event)
 
 bool MenuState::mouseMoved(const OIS::MouseEvent& event)
 {
-    if (OgreFramework::getSingletonPtr()->m_trayManager->injectMouseMove(event))
+    if (OgreFramework::getSingletonPtr()->trayManager()->injectMouseMove(event))
         return true;
 
     return true;
@@ -118,7 +118,7 @@ bool MenuState::mouseMoved(const OIS::MouseEvent& event)
 
 bool MenuState::mousePressed(const OIS::MouseEvent& event, OIS::MouseButtonID id)
 {
-    if (OgreFramework::getSingletonPtr()->m_trayManager->injectMouseDown(event, id))
+    if (OgreFramework::getSingletonPtr()->trayManager()->injectMouseDown(event, id))
         return true;
 
     return true;
@@ -128,7 +128,7 @@ bool MenuState::mousePressed(const OIS::MouseEvent& event, OIS::MouseButtonID id
 
 bool MenuState::mouseReleased(const OIS::MouseEvent& event, OIS::MouseButtonID id)
 {
-    if (OgreFramework::getSingletonPtr()->m_trayManager->injectMouseUp(event, id))
+    if (OgreFramework::getSingletonPtr()->trayManager()->injectMouseUp(event, id))
         return true;
 
     return true;

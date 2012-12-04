@@ -49,7 +49,7 @@ void GameState::enter()
 
 bool GameState::pause()
 {
-    OgreFramework::getSingletonPtr()->log()->logMessage("Pausing GameState...");
+    OgreFramework::getSingleton().log()->logMessage("Pausing GameState...");
     return true;
 }
 
@@ -57,11 +57,11 @@ bool GameState::pause()
 
 void GameState::resume()
 {
-    OgreFramework::getSingletonPtr()->log()->logMessage("Resuming GameState...");
+    OgreFramework::getSingleton().log()->logMessage("Resuming GameState...");
 
     buildGui();
 
-    OgreFramework::getSingletonPtr()->viewport()->setCamera(m_camera);
+    OgreFramework::getSingleton().viewport()->setCamera(m_camera);
     m_quit = false;
 }
 
@@ -69,14 +69,14 @@ void GameState::resume()
 
 void GameState::exit()
 {
-    OgreFramework::getSingletonPtr()->log()->logMessage("Leaving GameState...");
+    OgreFramework::getSingleton().log()->logMessage("Leaving GameState...");
 
     m_sceneManager->destroyCamera(m_camera);
     m_sceneManager->destroyQuery(m_rsq);
 
     // Dziwne
     if (m_sceneManager)
-        OgreFramework::getSingletonPtr()->root()->destroySceneManager(m_sceneManager);
+        OgreFramework::getSingleton().root()->destroySceneManager(m_sceneManager);
 }
 
 //------------------------------------------------------------------------------
@@ -170,7 +170,7 @@ bool GameState::keyPressed(const OIS::KeyEvent& event)
 bool GameState::keyReleased(const OIS::KeyEvent& event)
 {
     // Just pass to OgreFramework
-    OgreFramework::getSingletonPtr()->keyPressed(event);
+    OgreFramework::getSingleton().keyPressed(event);
     return true;
 }
 
@@ -178,7 +178,7 @@ bool GameState::keyReleased(const OIS::KeyEvent& event)
 
 bool GameState::mouseMoved(const OIS::MouseEvent& event)
 {
-    if (OgreFramework::getSingletonPtr()->trayManager()->injectMouseMove(event))
+    if (OgreFramework::getSingleton().trayManager()->injectMouseMove(event))
         return true;
 
     if (m_rightMouseDown) {
@@ -193,7 +193,7 @@ bool GameState::mouseMoved(const OIS::MouseEvent& event)
 
 bool GameState::mousePressed(const OIS::MouseEvent& event, OIS::MouseButtonID id)
 {
-    if (OgreFramework::getSingletonPtr()->trayManager()->injectMouseDown(event, id))
+    if (OgreFramework::getSingleton().trayManager()->injectMouseDown(event, id))
         return true;
 
     if (id == OIS::MB_Left) {
@@ -210,7 +210,7 @@ bool GameState::mousePressed(const OIS::MouseEvent& event, OIS::MouseButtonID id
 
 bool GameState::mouseReleased(const OIS::MouseEvent& event, OIS::MouseButtonID id)
 {
-    if (OgreFramework::getSingletonPtr()->trayManager()->injectMouseUp(event, id))
+    if (OgreFramework::getSingleton().trayManager()->injectMouseUp(event, id))
         return true;
 
     if (id == OIS::MB_Left) {
@@ -257,25 +257,150 @@ void GameState::onLeftPressed(const OIS::MouseEvent& event)
 //------------------------------------------------------------------------------
 
 void GameState::moveCamera()
-{}
+{
+    if (OgreFramework::getSingleton().keyboard()->isKeyDown(OIS::KC_LSHIFT))
+        m_camera->moveRelative(m_translateVector);
+
+    m_camera->moveRelative(m_translateVector / 10);
+}
 
 //------------------------------------------------------------------------------
 
 void GameState::getInput()
-{}
+{
+    if (m_settingsMode == false) {
+        OgreFramework& of = OgreFramework::getSingleton();
+
+        if (of.keyboard()->isKeyDown(OIS::KC_A))
+            m_translateVector.x = -m_moveScale;
+
+        if (of.keyboard()->isKeyDown(OIS::KC_D))
+            m_translateVector.x = m_moveScale;
+
+        if (of.keyboard()->isKeyDown(OIS::KC_W))
+            m_translateVector.z = -m_moveScale;
+
+        if (of.keyboard()->isKeyDown(OIS::KC_S))
+            m_translateVector.z = m_moveScale;
+
+        if (of.keyboard()->isKeyDown(OIS::KC_Q))
+            m_translateVector.y = -m_moveScale;
+
+        if (of.keyboard()->isKeyDown(OIS::KC_E))
+            m_translateVector.y = m_moveScale;
+
+        // Camera roll
+        if (of.keyboard()->isKeyDown(OIS::KC_Z))
+            m_camera->roll(Angle(-m_moveScale));
+
+        if (of.keyboard()->isKeyDown(OIS::KC_X))
+            m_camera->roll(Angle(m_moveScale));
+
+        // Reset roll
+        if (of.keyboard()->isKeyDown(OIS::KC_C))
+            m_camera->roll(-(m_camera->getRealOrientation().getRoll()));
+    }
+}
 
 //------------------------------------------------------------------------------
 
 void GameState::buildGui()
-{}
+{
+    OgreFramework& of = OgreFramework::getSingleton();
+
+    of.trayManager()->showFrameStats(OgreBites::TL_BOTTOMLEFT);
+    of.trayManager()->showLogo(OgreBites::TL_BOTTOMRIGHT);
+    of.trayManager()->createLabel(OgreBites::TL_TOP, "GameLbl", "Game mode", 250);
+    of.trayManager()->showCursor();
+
+    Ogre::StringVector items;
+    items.push_back("cam.pX");
+    items.push_back("cam.pY");
+    items.push_back("cam.pZ");
+    items.push_back("cam.oW");
+    items.push_back("cam.oX");
+    items.push_back("cam.oY");
+    items.push_back("cam.oZ");
+    items.push_back("Mode");
+
+    m_detailsPanel = of.trayManager()->createParamsPanel(OgreBites::TL_TOPLEFT, "DetailsPanel",
+                                                         200, items);
+    m_detailsPanel->show();
+
+    Ogre::String infoText = "[TAB] - Switch input mode\n\n"
+        "[W] - Forward / Mode up\n"
+        "[S] - Backwards / Mode down\n"
+        "[A] - Left\n";
+    infoText.append("[D] - Right\n\nPress [SHIFT] to move faster\n\n[O] - Toggle FPS / logo\n");
+    infoText.append("[Print] - Take screenshot\n\n[ESC] - Exit");
+    of.trayManager()->createTextBox(OgreBites::TL_RIGHT, "InfoPanel", infoText, 300, 200);
+
+    Ogre::StringVector chatModes;
+    chatModes.push_back("Solid mode");
+    chatModes.push_back("Wireframe mode");
+    chatModes.push_back("Point mode");
+    of.trayManager()->createLongSelectMenu(OgreBites::TL_TOPRIGHT, "ChatModeSelMenu",
+                                           "ChatMode", 200, 3, chatModes);
+}
 
 //------------------------------------------------------------------------------
 
 void GameState::itemSelected(OgreBites::SelectMenu *menu)
-{}
+{
+    switch (menu->getSelectionIndex()) {
+    case 0:
+        m_camera->setPolygonMode(Ogre::PM_SOLID);
+        break;
+    case 1:
+        m_camera->setPolygonMode(Ogre::PM_WIREFRAME);
+        break;
+    case 2:
+        m_camera->setPolygonMode(Ogre::PM_POINTS);
+        break;
+    }
+}
 
 //------------------------------------------------------------------------------
 
 void GameState::update(double timeSinceLastFrame)
-{}
+{
+#define TO_S StringConverter::toString
+
+    m_frameEvent.timeSinceLastFrame = timeSinceLastFrame;
+
+    OgreFramework::getSingleton().trayManager()->frameRenderingQueued(m_frameEvent);
+
+    if (m_quit == true) {
+        popAppState();
+        return;
+    }
+
+    if (!OgreFramework::getSingleton().trayManager()->isDialogVisible()) {
+        if (m_detailsPanel->isVisible()) {
+            m_detailsPanel->setParamValue(0, TO_S(m_camera->getDerivedPosition().x));
+            m_detailsPanel->setParamValue(1, TO_S(m_camera->getDerivedPosition().y));
+            m_detailsPanel->setParamValue(2, TO_S(m_camera->getDerivedPosition().z));
+            m_detailsPanel->setParamValue(3, TO_S(m_camera->getDerivedOrientation().w));
+            m_detailsPanel->setParamValue(4, TO_S(m_camera->getDerivedOrientation().x));
+            m_detailsPanel->setParamValue(5, TO_S(m_camera->getDerivedOrientation().y));
+            m_detailsPanel->setParamValue(6, TO_S(m_camera->getDerivedOrientation().z));
+
+            if (m_settingsMode) {
+                m_detailsPanel->setParamValue(7, "Buffered Input");
+            } else {
+                m_detailsPanel->setParamValue(7, "Un-Buffered Input");                
+            }
+        }
+    }
+
+    m_moveScale = m_moveSpeed * timeSinceLastFrame;
+    m_rotScale = m_rotateSpeed * timeSinceLastFrame;
+
+    m_translateVector = Vector3::ZERO;
+
+    getInput();
+    moveCamera();
+
+#undef TO_S
+}
 

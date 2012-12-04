@@ -1,8 +1,9 @@
 /* -*- c-basic-offset: 4; indent-tabs-mode: nil; -*- */
 #include "DemoApp.h"
 
-#include "MenuState.h"
 #include "AppStateManager.h"
+#include "MenuState.h"
+#include "GameState.h"
 
 //------------------------------------------------------------------------------
 
@@ -32,6 +33,7 @@ void DemoApp::startDemo()
     m_appStateManager = new AppStateManager();
 
     MenuState::create(m_appStateManager, "MenuState");
+    GameState::create(m_appStateManager, "GameState");
 
     m_appStateManager->start(m_appStateManager->findByName("MenuState"));
 }

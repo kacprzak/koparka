@@ -27,6 +27,7 @@ set( SRCS
         src/DemoApp.cpp
         src/MenuState.cpp
         src/GameState.cpp
+        src/PauseState.cpp
 )
 
 add_subdirectory( external )

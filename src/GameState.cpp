@@ -133,7 +133,7 @@ bool GameState::keyPressed(const OIS::KeyEvent& event)
     }
 
     if (of->keyboard()->isKeyDown(OIS::KC_ESCAPE)) {
-        // pushAppState(findByName("PauseState"));
+        pushAppState(findByName("PauseState"));
         return true;
     }
 

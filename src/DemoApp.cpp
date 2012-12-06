@@ -3,7 +3,8 @@
 
 #include "AppStateManager.h"
 #include "MenuState.h"
-#include "GameState.h"
+//#include "GameState.h"
+#include "TerrainGameState.h"
 #include "PauseState.h"
 
 //------------------------------------------------------------------------------
@@ -34,7 +35,7 @@ void DemoApp::startDemo()
     m_appStateManager = new AppStateManager();
 
     MenuState::create(m_appStateManager, "MenuState");
-    GameState::create(m_appStateManager, "GameState");
+    TerrainGameState::create(m_appStateManager, "GameState");
     PauseState::create(m_appStateManager, "PauseState");
 
     m_appStateManager->start(m_appStateManager->findByName("MenuState"));

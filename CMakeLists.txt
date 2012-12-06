@@ -28,6 +28,7 @@ set( SRCS
         src/MenuState.cpp
         src/GameState.cpp
         src/PauseState.cpp
+        src/TerrainGameState.cpp
 )
 
 add_subdirectory( external )

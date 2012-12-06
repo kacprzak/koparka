@@ -43,14 +43,14 @@ bool OgreFramework::initOgre(Ogre::String windowTitle, OIS::KeyListener *keyList
 
     m_root = new Ogre::Root();
 
-    // Okno konfiguracji
-    if (!m_root->showConfigDialog())
+    // Okno konfiguracji jeśli nie ma zapisanych ustawień
+    if (!m_root->restoreConfig() && !m_root->showConfigDialog())
         return false;
 
     // Auto create window
     m_window = m_root->initialise(true, windowTitle);
 
-    // Creating viewport without a camera!
+    // Creating viewport without a camera
     m_viewport = m_window->addViewport(0);
     m_viewport->setBackgroundColour(Ogre::ColourValue(0.5f, 0.5f, 0.5f, 1.0f)); // Grey
 

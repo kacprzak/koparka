@@ -37,10 +37,17 @@ class AppState : public OIS::KeyListener, public OIS::MouseListener,
 
     void destroy() { delete this; }
 
+    // Callbacks used by AppStateManager
+    /** Called when state is put on the active states stack */
     virtual void enter() = 0;
+    /** Called when state is removed from active states stack */
     virtual void exit() = 0;
+    /** Called when other is trying to pause state. Should return
+        flase if state can't be paused. */
     virtual bool pause() { return true; }
+    /** Reverse of pause */
     virtual void resume() {}
+    /** Called once on every frame */
     virtual void update(double timeSinceLastFrame) = 0;
 
  protected:

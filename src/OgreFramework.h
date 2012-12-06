@@ -74,7 +74,7 @@ class OgreFramework : public Ogre::Singleton<OgreFramework>,
     OIS::Mouse *m_mouse;
     OIS::Keyboard *m_keyboard;
 
-    // Wyświtla dodatkowie informacje o silniku
+    // Wyświetla dodatkowie informacje o silniku
     OgreBites::SdkTrayManager *m_trayManager;
 };
 

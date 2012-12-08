@@ -14,16 +14,6 @@ endif()
 find_package( OGRE REQUIRED )
 find_package( OIS REQUIRED )
 
-if (OGRE_Terrain_FOUND)
-  # pretty sure the following include is unneeded
-  # include_directories(${OGRE_Terrain_INCLUDE_DIRS})
-  # append OgreTerrain to the end of the OGRE_LIBRARIES variable
-  set(OGRE_LIBRARIES ${OGRE_LIBRARIES} ${OGRE_Terrain_LIBRARIES})  
-  message(STATUS "Found OGRE_Terrain: ${OGRE_Terrain_LIBRARIES}")
-else (OGRE_Terrain_FOUND)
-  message(SEND_ERROR "OgreTerrain Library not found.")
-endif(OGRE_Terrain_FOUND)
-
 set( CMAKE_DEBUG_POSTFIX "_d" )
 
 set( HDRS
@@ -44,7 +34,7 @@ set( SRCS
 add_subdirectory( external )
 
 include_directories(
-        /usr/include/OGRE
+        ${OGRE_INCLUDE_DIRS}
         external
         src
 )

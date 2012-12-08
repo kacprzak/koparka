@@ -404,3 +404,17 @@ void TerrainGameState::update(double timeSinceLastFrame)
 #undef TO_S
 }
 
+//------------------------------------------------------------------------------
+
+void TerrainGameState::defineTerrain()
+{}
+
+//------------------------------------------------------------------------------
+
+void TerrainGameState::initBlendMaps(Ogre::Terrain *terrain)
+{}
+
+//------------------------------------------------------------------------------
+
+void TerrainGameState::configureTerrainDafaults(Ogre::Light *light)
+{}

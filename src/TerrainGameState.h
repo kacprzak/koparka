@@ -9,6 +9,9 @@
 #include <OGRE/OgreSubEntity.h>
 #include <OGRE/OgreMaterialManager.h>
 
+#include <OGRE/Terrain/OgreTerrain.h>
+#include <OGRE/Terrain/OgreTerrainGroup.h>
+
 enum QueryFlags {
     OGRE_HEAD_MASK = 1 << 0,
     CUBE_MASK      = 1 << 1
@@ -49,6 +52,10 @@ class TerrainGameState : public AppState
     void itemSelected(OgreBites::SelectMenu *menu);
 
  private:
+    void defineTerrain();
+    void initBlendMaps(Ogre::Terrain *terrain);
+    void configureTerrainDafaults(Ogre::Light *light);
+
     bool                   m_quit;
 
     Ogre::SceneNode        *m_ogreHeadNode;
@@ -70,6 +77,10 @@ class TerrainGameState : public AppState
     bool                   m_leftMouseDown;
     bool                   m_rightMouseDown;
     bool                   m_settingsMode;
+
+    Ogre::TerrainGlobalOptions *m_terrainGlobals;
+    Ogre::TerrainGroup         *m_terrainGroup;
+    bool                       m_terrainsImported;
 };
 
 #endif

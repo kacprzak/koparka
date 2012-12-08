@@ -4,6 +4,16 @@
 
 using namespace Ogre;
 
+void getTerrainImage(bool flipX, bool flipY, Ogre::Image& img)
+{
+    // fliping to avoid seams
+    img.load("terrain.png", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    if (flipX)
+        img.flipAroundX();
+    if (flipY)
+        img.flipAroundY();
+}
+
 //------------------------------------------------------------------------------
 
 TerrainGameState::TerrainGameState()
@@ -21,23 +31,27 @@ TerrainGameState::TerrainGameState()
 
 void TerrainGameState::enter()
 {
-    OgreFramework *of = OgreFramework::getSingletonPtr();
+    OgreFramework& of = OgreFramework::getSingleton();
 
-    m_sceneManager = of->root()->createSceneManager(ST_GENERIC, "GameSceneMgr");
+    m_sceneManager = of.root()->createSceneManager(ST_GENERIC, "GameSceneMgr");
     m_sceneManager->setAmbientLight(ColourValue(0.7f, 0.7f, 0.7f));
 
     m_rsq = m_sceneManager->createRayQuery(Ray());
     m_rsq->setQueryMask(OGRE_HEAD_MASK);
 
     m_camera = m_sceneManager->createCamera("GameCamera");
-    m_camera->setPosition(Vector3(5, 60, 60));
-    m_camera->lookAt(Vector3(5, 20, 0));
-    m_camera->setNearClipDistance(5);
+    m_camera->setPosition(Vector3(1683, 50, 2116));
+    m_camera->lookAt(Vector3(1963, 50, 1660));
+    m_camera->setNearClipDistance(0.1);
 
-    m_camera->setAspectRatio(of->viewport()->getActualWidth()
-                             / Real(of->viewport()->getActualHeight()));
+    if (of.root()->getRenderSystem()->getCapabilities()->hasCapability(RSC_INFINITE_FAR_PLANE)) {
+        m_camera->setFarClipDistance(0); // infinite far
+    }
 
-    of->viewport()->setCamera(m_camera);
+    m_camera->setAspectRatio(of.viewport()->getActualWidth()
+                             / Real(of.viewport()->getActualHeight()));
+
+    of.viewport()->setCamera(m_camera);
     m_currentNode = 0;
 
     buildGui();
@@ -83,8 +97,18 @@ void TerrainGameState::exit()
 
 void TerrainGameState::createScene()
 {
-    m_sceneManager->createLight("Light")->setPosition(75, 75, 75);
+    Vector3 lightDirection(0.55, -0.3, 0.75);
+    lightDirection.normalise();
 
+    Light *light = m_sceneManager->createLight("Light");
+    light->setType(Light::LT_DIRECTIONAL);
+    light->setDirection(lightDirection);
+    light->setDiffuseColour(ColourValue::White);
+    light->setSpecularColour(ColourValue(0.4, 0.4, 0.4));
+
+    m_sceneManager->setAmbientLight(ColourValue(0.2, 0.2, 0.2));
+
+#if 0
     DotSceneLoader *dotSceneLoader = new DotSceneLoader;
     dotSceneLoader->parseDotScene("CubeScene.xml", "General",
                                   m_sceneManager,
@@ -106,6 +130,34 @@ void TerrainGameState::createScene()
     m_ogreHeadMatHigh = m_ogreHeadMat->clone("OgreHeadMatHigh");
     m_ogreHeadMatHigh->getTechnique(0)->getPass(0)->setAmbient(1, 0, 0);
     m_ogreHeadMatHigh->getTechnique(0)->getPass(0)->setDiffuse(1, 0, 0, 0);
+#endif
+
+    m_terrainGlobals = OGRE_NEW TerrainGlobalOptions();
+    // SceneManager, Terrain align, Terrain size, Tarrain world size
+    m_terrainGroup = OGRE_NEW TerrainGroup(m_sceneManager, Terrain::ALIGN_X_Z, 513, 12000.0f);
+    // Filename for saving terrain
+    m_terrainGroup->setFilenameConvention(String("BasicTutorial3Terrain"), String("dat"));
+    m_terrainGroup->setOrigin(Vector3::ZERO);
+
+    configureTerrainDafaults(light);
+
+    // Called once in this example
+    for (long x = 0; x <= 0; ++x)
+        for (long y = 0; y <= 0; ++y)
+            defineTerrain(x, y);
+
+    // sync load
+    m_terrainGroup->loadAllTerrains(true);
+
+    if (m_terrainsImported) {
+        TerrainGroup::TerrainIterator ti = m_terrainGroup->getTerrainIterator();
+        while (ti.hasMoreElements()) {
+            Terrain *t = ti.getNext()->instance;
+            initBlendMaps(t);
+        }
+    }
+    
+    m_terrainGroup->freeTemporaryResources();
 }
 
 //------------------------------------------------------------------------------
@@ -406,15 +458,84 @@ void TerrainGameState::update(double timeSinceLastFrame)
 
 //------------------------------------------------------------------------------
 
-void TerrainGameState::defineTerrain()
-{}
+void TerrainGameState::defineTerrain(long x, long y)
+{
+    Ogre::String filename = m_terrainGroup->generateFilename(x, y);
+
+    if (Ogre::ResourceGroupManager::getSingleton().resourceExists(m_terrainGroup->getResourceGroup(), filename)) {
+        m_terrainGroup->defineTerrain(x, y);
+    } else {
+        Ogre::Image img;
+        getTerrainImage(x % 2 != 0, y % 2 != 0, img);
+        m_terrainGroup->defineTerrain(x, y, &img);
+        m_terrainsImported = true;
+    }
+}
 
 //------------------------------------------------------------------------------
 
 void TerrainGameState::initBlendMaps(Ogre::Terrain *terrain)
-{}
+{
+    Ogre::TerrainLayerBlendMap* blendMap0 = terrain->getLayerBlendMap(1);
+    Ogre::TerrainLayerBlendMap* blendMap1 = terrain->getLayerBlendMap(2);
+    Ogre::Real minHeight0 = 70;
+    Ogre::Real fadeDist0 = 40;
+    Ogre::Real minHeight1 = 70;
+    Ogre::Real fadeDist1 = 15;
+    float* pBlend0 = blendMap0->getBlendPointer();
+    float* pBlend1 = blendMap1->getBlendPointer();
+    for (Ogre::uint16 y = 0; y < terrain->getLayerBlendMapSize(); ++y)
+    {
+        for (Ogre::uint16 x = 0; x < terrain->getLayerBlendMapSize(); ++x)
+        {
+            Ogre::Real tx, ty;
+ 
+            blendMap0->convertImageToTerrainSpace(x, y, &tx, &ty);
+            Ogre::Real height = terrain->getHeightAtTerrainPosition(tx, ty);
+            Ogre::Real val = (height - minHeight0) / fadeDist0;
+            val = Ogre::Math::Clamp(val, (Ogre::Real)0, (Ogre::Real)1);
+            *pBlend0++ = val;
+ 
+            val = (height - minHeight1) / fadeDist1;
+            val = Ogre::Math::Clamp(val, (Ogre::Real)0, (Ogre::Real)1);
+            *pBlend1++ = val;
+        }
+    }
+    blendMap0->dirty();
+    blendMap1->dirty();
+    blendMap0->update();
+    blendMap1->update();  
+}
 
 //------------------------------------------------------------------------------
 
 void TerrainGameState::configureTerrainDafaults(Ogre::Light *light)
-{}
+{
+    m_terrainGlobals->setMaxPixelError(8);
+    m_terrainGlobals->setCompositeMapDistance(3000);
+
+    // Important to set these so that the terrain knows what to use for derived (non-realtime) data
+    m_terrainGlobals->setLightMapDirection(light->getDerivedDirection());
+    m_terrainGlobals->setCompositeMapAmbient(m_sceneManager->getAmbientLight());
+    m_terrainGlobals->setCompositeMapDiffuse(light->getDiffuseColour());
+
+    // Configure default import settings for if we use imported image
+    Ogre::Terrain::ImportData& defaultimp = m_terrainGroup->getDefaultImportSettings();
+    defaultimp.terrainSize = 513;
+    defaultimp.worldSize = 12000.0f;
+    defaultimp.inputScale = 600; // due terrain.png is 8 bpp
+    defaultimp.minBatchSize = 33;
+    defaultimp.maxBatchSize = 65;
+
+    // textures
+    defaultimp.layerList.resize(3);
+    defaultimp.layerList[0].worldSize = 100;
+    defaultimp.layerList[0].textureNames.push_back("dirt_grayrocky_diffusespecular.dds");
+    defaultimp.layerList[0].textureNames.push_back("dirt_grayrocky_normalheight.dds");
+    defaultimp.layerList[1].worldSize = 30;
+    defaultimp.layerList[1].textureNames.push_back("grass_green-01_diffusespecular.dds");
+    defaultimp.layerList[1].textureNames.push_back("grass_green-01_normalheight.dds");
+    defaultimp.layerList[2].worldSize = 200;
+    defaultimp.layerList[2].textureNames.push_back("growth_weirdfungus-03_diffusespecular.dds");
+    defaultimp.layerList[2].textureNames.push_back("growth_weirdfungus-03_normalheight.dds");
+}

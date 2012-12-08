@@ -52,7 +52,7 @@ class TerrainGameState : public AppState
     void itemSelected(OgreBites::SelectMenu *menu);
 
  private:
-    void defineTerrain();
+    void defineTerrain(long x, long y);
     void initBlendMaps(Ogre::Terrain *terrain);
     void configureTerrainDafaults(Ogre::Light *light);
 

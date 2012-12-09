@@ -38,6 +38,7 @@ class AppState : public OIS::KeyListener, public OIS::MouseListener,
     void destroy() { delete this; }
 
     // Callbacks used by AppStateManager
+
     /** Called when state is put on the active states stack */
     virtual void enter() = 0;
     /** Called when state is removed from active states stack */
@@ -53,33 +54,37 @@ class AppState : public OIS::KeyListener, public OIS::MouseListener,
  protected:
     AppState() {}
 
-    AppState* findByName(Ogre::String stateName)
-    {
+    AppState* findByName(Ogre::String stateName) {
         return m_parent->findByName(stateName);
     }
 
-    void changeAppState(AppState *state) { m_parent->changeAppState(state); }
+    void changeAppState(AppState *state) {
+        m_parent->changeAppState(state);
+    }
 
-    bool pushAppState(AppState *state)
-    {
+    bool pushAppState(AppState *state) {
         return m_parent->pushAppState(state);
     }
 
-    void popAppState() { m_parent->popAppState(); }
-    void shutdown() { m_parent->shutdown(); }
+    void popAppState() {
+        m_parent->popAppState();
+    }
 
-    void popAllAndPushAppState(AppState *state)
-    {
+    void shutdown() {
+        m_parent->shutdown();
+    }
+
+    void popAllAndPushAppState(AppState *state) {
         m_parent->popAllAndPushAppState(state);
     }
 
     // Fields
-    AppStateListener *m_parent;
+    AppStateListener   *m_parent;       //< Menadżer stanu
     
-    Ogre::Camera *m_camera;
+    Ogre::Camera       *m_camera;
     Ogre::SceneManager *m_sceneManager;
 
-    Ogre::FrameEvent m_frameEvent;
+    Ogre::FrameEvent   m_frameEvent;
 };
 
 //------------------------------------------------------------------------------

@@ -3,6 +3,12 @@
 
 #include <OGRE/OgreWindowEventUtilities.h>
 
+// Double expansion trick
+#define S(x) #x
+#define S_(x) S(x)
+#define S__LINE__ S_(__LINE__)
+/* use S__LINE__ instead of __LINE__ */
+
 //------------------------------------------------------------------------------
 
 AppStateManager::AppStateManager()
@@ -44,7 +50,7 @@ void AppStateManager::manageAppState(Ogre::String stateName, AppState *state)
         throw Ogre::Exception(Ogre::Exception::ERR_INTERNAL_ERROR,
                               "Error while tring to manage a new AppState\n"
                               + Ogre::String(e.what()),
-                              __FILE__ ":__LINE__");
+                              __FILE__ ":" S__LINE__);
     }
 }
 

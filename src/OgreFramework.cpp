@@ -25,7 +25,8 @@ OgreFramework::OgreFramework()
 
 OgreFramework::~OgreFramework()
 {
-    OgreFramework::getSingletonPtr()->m_log->logMessage("Shutdown OGRE...");
+    m_log->logMessage("Shutdown OGRE...");
+
     if (m_trayManager) delete m_trayManager;
     if (m_inputManager) OIS::InputManager::destroyInputSystem(m_inputManager);
     if (m_root) delete m_root;
@@ -142,7 +143,7 @@ bool OgreFramework::keyPressed(const OIS::KeyEvent& /*event*/)
 
 bool OgreFramework::keyReleased(const OIS::KeyEvent& /*event*/)
 {
-    return true;
+    return true; // Keep rendering
 }
 
 //------------------------------------------------------------------------------

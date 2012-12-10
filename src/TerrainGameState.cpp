@@ -36,8 +36,8 @@ void TerrainGameState::enter()
     m_sceneManager = of.root()->createSceneManager(ST_GENERIC, "GameSceneMgr");
     m_sceneManager->setAmbientLight(ColourValue(0.7f, 0.7f, 0.7f));
 
-    m_rsq = m_sceneManager->createRayQuery(Ray());
-    m_rsq->setQueryMask(OGRE_HEAD_MASK);
+    //m_rsq = m_sceneManager->createRayQuery(Ray());
+    //m_rsq->setQueryMask(OGRE_HEAD_MASK);
 
     m_camera = m_sceneManager->createCamera("GameCamera");
     m_camera->setPosition(Vector3(1683, 50, 2116));
@@ -48,14 +48,16 @@ void TerrainGameState::enter()
         m_camera->setFarClipDistance(0); // infinite far
     }
 
+    //Ogre::MaterialManager::getSingleton().setDefaultTextureFiltering(Ogre::TFO_ANISOTROPIC);
+    //Ogre::MaterialManager::getSingleton().setDefaultAnisotropy(7);
+
     m_camera->setAspectRatio(of.viewport()->getActualWidth()
                              / Real(of.viewport()->getActualHeight()));
 
     of.viewport()->setCamera(m_camera);
+
     m_currentNode = 0;
-
     buildGui();
-
     createScene();
 }
 
@@ -86,9 +88,11 @@ void TerrainGameState::exit()
     OgreFramework::getSingleton().log()->logMessage("Leaving TerrainGameState...");
 
     m_sceneManager->destroyCamera(m_camera);
-    m_sceneManager->destroyQuery(m_rsq);
+    //m_sceneManager->destroyQuery(m_rsq);
 
-    // Dziwne
+    OGRE_DELETE m_terrainGroup;
+    OGRE_DELETE m_terrainGlobals;
+
     if (m_sceneManager)
         OgreFramework::getSingleton().root()->destroySceneManager(m_sceneManager);
 }
@@ -107,6 +111,8 @@ void TerrainGameState::createScene()
     light->setSpecularColour(ColourValue(0.4, 0.4, 0.4));
 
     m_sceneManager->setAmbientLight(ColourValue(0.2, 0.2, 0.2));
+
+    m_sceneManager->setSkyDome(true, "Examples/CloudySky", 5, 8);
 
 #if 0
     DotSceneLoader *dotSceneLoader = new DotSceneLoader;
@@ -278,6 +284,7 @@ bool TerrainGameState::mouseReleased(const OIS::MouseEvent& event, OIS::MouseBut
 
 void TerrainGameState::onLeftPressed(const OIS::MouseEvent& event)
 {
+#if 0
     OgreFramework *of = OgreFramework::getSingletonPtr();
 
     if (m_currentNode) {
@@ -304,6 +311,7 @@ void TerrainGameState::onLeftPressed(const OIS::MouseEvent& event)
             break;
         }
     }
+#endif
 }
 
 //------------------------------------------------------------------------------

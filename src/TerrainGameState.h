@@ -58,10 +58,10 @@ class TerrainGameState : public AppState
 
     bool                   m_quit;
 
-    Ogre::SceneNode        *m_ogreHeadNode;
-    Ogre::Entity           *m_ogreHeadEntity;
-    Ogre::MaterialPtr      m_ogreHeadMat;
-    Ogre::MaterialPtr      m_ogreHeadMatHigh;
+    // Ogre::SceneNode        *m_ogreHeadNode;
+    // Ogre::Entity           *m_ogreHeadEntity;
+    // Ogre::MaterialPtr      m_ogreHeadMat;
+    // Ogre::MaterialPtr      m_ogreHeadMatHigh;
 
     OgreBites::ParamsPanel *m_detailsPanel;
 
